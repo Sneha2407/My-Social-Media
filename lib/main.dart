@@ -1,20 +1,47 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:my_social_media/provider/auth_provider.dart';
+import 'package:my_social_media/provider/profile_provider.dart';
+import 'package:my_social_media/provider/storage_provider.dart';
+import 'package:my_social_media/provider/theme_provider.dart';
 import 'package:my_social_media/responsive/mobScreenLayout.dart';
 import 'package:my_social_media/responsive/responsive_layout.dart';
 import 'package:my_social_media/responsive/webScreenLayout.dart';
+import 'package:my_social_media/screens/login_screen.dart';
 import 'package:my_social_media/utils/colors.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() async {
+Future <void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const MyApp());
+   await Firebase.initializeApp();
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+  // await getit_locator.init(prefs);
+ 
+  // runApp(const MyApp()
+  runApp(
+    MultiProvider(
+      providers: [
+         ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ProfileProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(prefs: prefs),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => StorageProvider(prefs),
+        ),
+      ],
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+ 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,10 +50,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: mobileBackgroundColor,
       ),
-      home: const ResponsiveLayout(
-        MobScreenLayout: MobScreenLayout(),
-        WebScreenLayout: WebScreenLayout(),
-      ),
+      // home:
+      home: LoginPage(),
     );
   }
 }
